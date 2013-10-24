@@ -1,0 +1,214 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of backwardSHT</TITLE>
+</HEAD><BODY>
+<H1>backwardSHT</H1>
+Section: User Commands  (1)<BR>Updated: Version 1.03: July 2003<BR><A HREF="#index">Index</A>
+<A HREF="../manPages.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>backwardSHT, backwardSHTmpi</B>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>#include ccSHT.h</B>
+
+<P>
+
+<B>void backwardSHT( fftw_complex *</B><I>alm</I><B>, coordStruct </B><I>coords</I><B>, int </B><I>lmax</I><B>, void *</B><I>map</I><B>, int </B><I>outputIsComplex</I><B> );</B>
+
+<P>
+
+<B>#include ccSHTmpi.h</B>
+
+<P>
+
+<B>void backwardSHTmpi( fftw_complex *</B><I>alm</I><B>, coordStruct </B><I>coords</I><B>, int </B><I>lmax</I><B>, void *</B><I>map</I><B>, int </B><I>outputIsComplex</I><B>, int </B><I>outputRoot</I><B>, MPI_Comm </B><I>theComm</I><B> );</B>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+These functions are the members of the ccSHT library which 
+perform the backward discrete spherical harmonic 
+transform (SHT).  backwardSHT() performs the computation
+in serial and backwardSHTmpi() performs the computation 
+in parallel.  For some background, 
+and more information about the library see the man 
+page for ccSHT.  
+<P>
+backwardSHT() and backwardSHTmpi() perform 
+a band limited discrete SHT, where
+the band limit is set by the input parameter called
+lmax.  That is to say that the transform assumes 
+a_{l,m} is zero for all l greater than lmax.  
+For this reason the user supplies the spherical
+harmonic coefficients only for values of l less 
+than or equal to lmax (l in the set {0, 1, 2, ..., lmax} 
+and m in the set {-l, -l+1, -l+2, ..., l}).  
+<P>
+The backward discrete spherical harmonic transform creates 
+a pixel domain vector (g) from a vector of spherical harmonic
+coefficients (a).  This is done by the following computation:
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lmax&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----&nbsp;&nbsp;-----
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\
+<BR>&nbsp;g&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)&nbsp;&nbsp;&nbsp;&nbsp;a*Y
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----&nbsp;&nbsp;-----
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;l&nbsp;=&nbsp;0&nbsp;&nbsp;m&nbsp;=&nbsp;-l
+<P>
+where
+<P>
+<BR>&nbsp;g&nbsp;=&nbsp;g(theta,phi)
+<BR>&nbsp;
+<BR>&nbsp;a&nbsp;=&nbsp;a_{l,m}
+<P>
+<BR>&nbsp;Y&nbsp;=&nbsp;Y_{l,m}(theta,phi)
+<P>
+In the above formulation, Y  
+are the spherical harmonics.  More
+explicitly, the spherical harmonics 
+are defined 
+<P>
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;________________
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/&nbsp;(2*l+1)*(l-m)!&nbsp;
+<BR>&nbsp;Y&nbsp;=&nbsp;&nbsp;&nbsp;/&nbsp;----------------*P(cos(theta))*exp(i*m*phi)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4*pi*(l+m)!
+<P>
+where P(cos(theta)) = P_{l,m}(cos(theta)) are the associated 
+Legendre polynomials, and i is the imaginary number.  The 
+above formulation is only valid for non-negative m
+since P is only defined for non-negative m.  Y_{l,m}
+is related to Y_{l,-m} as follows:
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;_
+<BR>&nbsp;Y_{l,-m}&nbsp;=&nbsp;(-1)^m*Y_{l,m}
+<P>
+so we can infer the values of Y for negative m.  
+<P>
+The input to the transform is a vector of spherical
+harmonic coefficients (alm).  The indexing of the 
+spherical harmonic coefficient vector is described
+in the man page for <A HREF="ccSHT.html">ccSHT</A>(1).  The output of the 
+transform is the pixel domain vector g (map).  
+The locations of the positions on the sphere where the function 
+g is evaluated are stored in the structure called coords (see 
+man page ccSHT for more details about this structure).  
+<P>
+For more information about the calculation of the associated Legendre
+polynomials see the man page for calculateQlm().  The transform
+doesn't actually call calculateQlm() for optimization purposes.  
+Instead most of the coding required to do the calculation 
+of the associated Legendre polynomials is done in the functions
+calculateSmallQlm() and lmCalculations() which the transform
+does call. 
+<P>
+Below is a table describing the parameters passed to backwardSHT()
+and backwardSHTmpi().  
+<DL COMPACT>
+<DT><B>alm</B>
+
+<DD>
+The coefficients of the band limited spherical harmonic expansion 
+of the desired output function.   Note that these are complex, and 
+we have used the FFTW structure for complex numbers.  alm should be a length 
+(lmax+1)^2 fftw_complex vector. The indexing scheme is defined in 
+in the man page for ccSHT.  
+<DT><B>coords</B>
+
+<DD>
+A structure which contains the information about the
+pixelization of the sphere (see man page for ccSHT 
+for a detailed description of this structure).  
+<DT><B>lmax</B>
+
+<DD>
+Band limit which defines the maximum l value for 
+which the spherical harmonic coefficients are 
+not assumed to be zero.  
+<DT><B>map</B>
+
+<DD>
+A pointer to the output (g).  The output can be either real or 
+complex depending on the value of outputIsComplex.  If 
+outputIsComplex is zero then the imaginary part of g is 
+ignored.  In this case, if the imaginary part of g is non-trivial 
+a warning message is printed to stderr.  There are coords.nPix
+elements (real or complex) in the output vector g.  
+<DT><B>outputIsComplex</B>
+
+<DD>
+A logical indicator as to the type of output desired 
+if outputIsComplex is non-zero then the output is
+complex, otherwise the output is just the real part of
+g.  See description of map for more information. 
+<DT><B>outputRoot</B>
+
+<DD>
+This is only required for backwardSHTmpi().  This input 
+indicates the rank of the processor on which the output 
+will be stored.  If outputRoot == -1, then the output
+will be stored on all processors.  
+<DT><B>theComm</B>
+
+<DD>
+This parameter is only required for backwardSHTmpi().  This is 
+the MPI communicator on which the computation is to be
+done.  
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Version 1.03 July 2003
+<P>
+Copyright (C) 2003  Christopher M. Cantalupo
+<P>
+backwardSHT and backwardSHTmpi are free software; 
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+<P>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+<P>
+Christopher Cantalupo &lt;<A HREF="mailto:cmc@nersc.gov">cmc@nersc.gov</A>&gt;
+<P>
+Send bug reports or comments to the above address.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<A HREF="forwardSHT.html">forwardSHT</A>(1), <A HREF="forwardSHT.html">forwardSHTmpi</A>(1), <A HREF="backwardSHTmpi.html">backwardSHTmpi</A>(1),
+<A HREF="calculateQlm.html">calculateQlm</A>(1), <A HREF="convertRaDec2Coords.html">convertRaDec2Coords</A>(1), <A HREF="destroyCoords.html">destroyCoords</A>(1), <A HREF="http://www.fftw.org">fftw</A>(1) 
+<P>
+<P>
+<P>
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:52:28 GMT, July 15, 2003
+</BODY>
+</HTML>

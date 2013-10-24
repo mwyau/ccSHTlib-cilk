@@ -1,0 +1,161 @@
+.TH backwardSHT 1 "Version 1.03: July 2003"
+.SH NAME
+.B backwardSHT, backwardSHTmpi
+.SH SYNOPSIS
+.B #include "ccSHT.h"
+.PP
+.BI "void backwardSHT( fftw_complex *" alm ", coordStruct " coords ", int " lmax ", void *" map ", int " outputIsComplex " );"
+.PP
+.B #include "ccSHTmpi.h"
+.PP
+.BI "void backwardSHTmpi( fftw_complex *" alm ", coordStruct " coords ", int " lmax ", void *" map ", int " outputIsComplex  ", int " outputRoot ", MPI_Comm " theComm  " );"
+.PP
+.SH DESCRIPTION
+
+These functions are the members of the ccSHT library which 
+perform the backward discrete spherical harmonic 
+transform (SHT).  backwardSHT() performs the computation
+in serial and backwardSHTmpi() performs the computation 
+in parallel.  For some background, 
+and more information about the library see the man 
+page for ccSHT.  
+
+backwardSHT() and backwardSHTmpi() perform 
+a band limited discrete SHT, where
+the band limit is set by the input parameter called
+lmax.  That is to say that the transform assumes 
+a_{l,m} is zero for all l greater than lmax.  
+For this reason the user supplies the spherical
+harmonic coefficients only for values of l less 
+than or equal to lmax (l in the set {0, 1, 2, ..., lmax} 
+and m in the set {-l, -l+1, -l+2, ..., l}).  
+
+The backward discrete spherical harmonic transform creates 
+a pixel domain vector (g) from a vector of spherical harmonic
+coefficients (a).  This is done by the following computation:
+
+      lmax     l
+      -----  -----
+       \\      \\
+ g =    )      )    a*Y
+       /      /
+      -----  -----
+      l = 0  m = -l
+
+where
+
+ g = g(theta,phi)
+ 
+ a = a_{l,m}
+
+ Y = Y_{l,m}(theta,phi)
+
+In the above formulation, Y  
+are the spherical harmonics.  More
+explicitly, the spherical harmonics 
+are defined 
+
+         ________________
+        / (2*l+1)*(l-m)! 
+ Y =   / ----------------*P(cos(theta))*exp(i*m*phi)
+     \\/     4*pi*(l+m)!
+
+where P(cos(theta)) = P_{l,m}(cos(theta)) are the associated 
+Legendre polynomials, and i is the imaginary number.  The 
+above formulation is only valid for non-negative m
+since P is only defined for non-negative m.  Y_{l,m}
+is related to Y_{l,-m} as follows:
+                   _
+ Y_{l,-m} = (-1)^m*Y_{l,m}
+
+so we can infer the values of Y for negative m.  
+
+The input to the transform is a vector of spherical
+harmonic coefficients (alm).  The indexing of the 
+spherical harmonic coefficient vector is described
+in the man page for ccSHT(1).  The output of the 
+transform is the pixel domain vector g (map).  
+The locations of the positions on the sphere where the function 
+g is evaluated are stored in the structure called coords (see 
+man page ccSHT for more details about this structure).  
+
+For more information about the calculation of the associated Legendre
+polynomials see the man page for calculateQlm().  The transform
+doesn't actually call calculateQlm() for optimization purposes.  
+Instead most of the coding required to do the calculation 
+of the associated Legendre polynomials is done in the functions
+calculateSmallQlm() and lmCalculations() which the transform
+does call. 
+
+Below is a table describing the parameters passed to backwardSHT()
+and backwardSHTmpi().  
+.TP
+.B alm
+The coefficients of the band limited spherical harmonic expansion 
+of the desired output function.   Note that these are complex, and 
+we have used the FFTW structure for complex numbers.  alm should be a length 
+(lmax+1)^2 fftw_complex vector. The indexing scheme is defined in 
+in the man page for ccSHT.  
+.TP
+.B coords
+A structure which contains the information about the
+pixelization of the sphere (see man page for ccSHT 
+for a detailed description of this structure).  
+.TP
+.B lmax
+Band limit which defines the maximum l value for 
+which the spherical harmonic coefficients are 
+not assumed to be zero.  
+.TP
+.B map
+A pointer to the output (g).  The output can be either real or 
+complex depending on the value of outputIsComplex.  If 
+outputIsComplex is zero then the imaginary part of g is 
+ignored.  In this case, if the imaginary part of g is non-trivial 
+a warning message is printed to stderr.  There are coords.nPix
+elements (real or complex) in the output vector g.  
+.TP
+.B outputIsComplex
+A logical indicator as to the type of output desired 
+if outputIsComplex is non-zero then the output is
+complex, otherwise the output is just the real part of
+g.  See description of map for more information. 
+.TP
+.B outputRoot
+This is only required for backwardSHTmpi().  This input 
+indicates the rank of the processor on which the output 
+will be stored.  If outputRoot == -1, then the output
+will be stored on all processors.  
+.TP 
+.B theComm
+This parameter is only required for backwardSHTmpi().  This is 
+the MPI communicator on which the computation is to be
+done.  
+
+.SH COPYRIGHT
+Version 1.03 July 2003
+
+Copyright (C) 2003  Christopher M. Cantalupo
+
+backwardSHT and backwardSHTmpi are free software; 
+you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+
+Christopher Cantalupo <cmc@nersc.gov>
+
+Send bug reports or comments to the above address.
+
+.SH "SEE ALSO"
+forwardSHT(1), forwardSHTmpi(1), backwardSHTmpi(1),
+calculateQlm(1), convertRaDec2Coords(1), destroyCoords(1), fftw(1) 
+
+
+
+

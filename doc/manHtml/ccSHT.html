@@ -1,0 +1,399 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of ccSHT</TITLE>
+</HEAD><BODY>
+<H1>ccSHT</H1>
+Section: User Commands  (1)<BR>Updated: Version 1.03: July 2003<BR><A HREF="#index">Index</A>
+<A HREF="../manPages.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+ccSHT - A Spherical Harmonic Transform Library
+<A NAME="lbAC">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+<A NAME="lbAD">&nbsp;</A>
+<H3>Introduction</H3>
+
+<P>
+ccSHT is a C library comprised of routines that compute 
+the discrete spherical harmonic transform (SHT). The SHT 
+is essentially the Fourier transform for the surface of 
+the unit sphere (S2). The basis functions in the SHT are 
+an orthonormal set of eigenfunctions of the Laplace 
+operator on S2 which span S2.  The basis functions of the 
+Fourier transform are an orthonormal set of eigenfunctions 
+of the Laplace operator on n dimensional Euclidean space (Rn)
+which span Rn. The Fourier transform is ubiquitous and 
+many libraries exist to do discrete fast Fourier transforms 
+(FFT's) in Rn. There are many applications, however, where 
+spherical coordinates arise naturally, and spectral 
+analysis must be performed. In these cases the natural 
+tool to use is the SHT.
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H3>Other SHT Libraries</H3>
+
+<P>
+A few other libraries exist which compute the discrete SHT but 
+they apply to a more limited set of pixelizations and 
+do not contain implementations for parallel architectures. 
+ccSHT can be applied to a wide variety of pixelizations 
+and contains both parallel and serial versions of the 
+transform. The parallel code uses the MPI library to 
+perform communications. ccSHT does the computation quickly 
+(in O(N^(3/2)) operations) where N is the number of pixels.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H3>Using ccSHT with FORTRAN </H3>
+
+<P>
+There are a set of functions in the source code files
+ccSHTfortran.c and ccSHTmpiFortran.c which allow the
+primary functions of the ccSHT library to be easily 
+linked from a FORTRAN code.  For more information about
+the calling syntax of these FORTRAN compatible subroutines
+see the man page <A HREF="ccSHTfortran.html">ccSHTfortran</A>(1).  
+<P>
+<A NAME="lbAG">&nbsp;</A>
+<H3>Fourier Transforms</H3>
+
+<P>
+FFT's are used for part of the computation.  These FFT's 
+are done with the FFTW library which was chosen primarily 
+for its portability.  The Fourier transforms do not account
+for a significant amount of time in the computation (the time
+is proportional to the N * ln(N) where N is the number of 
+pixels).  None the less, FFTW is quite efficient on most 
+architectures, so this short calculation is done quickly.  
+For more information on the FFTW library visit their web 
+site:    
+
+<A HREF="http://www.fftw.org">http://www.fftw.org</A> 
+
+At the time of the release of ccSHT version 1.03, FFTW 
+had just released version 3.0.  This new version of 
+FFTW has a different API, and so ccSHT must be used in
+conjunction with FFTW version 2.15.  This code is now 
+included with the ccSHT package in the form as downloaded
+from the fftw site on July 15, 2003.  
+<P>
+<A NAME="lbAH">&nbsp;</A>
+<H3>Intermediate Calculation Files</H3>
+
+<P>
+The calculation of the SHT may be accelerated
+if the code is allowed to store some intermediate calculations
+on disk.  These intermediate calculations will be stored if 
+a directory called ccSHT_files exists in the 
+working directory when a transform is performed.  If the
+code can not find the file it is looking for, but the
+directory exists, then it will create the file.  Using these 
+files may speed up or slow down the calculation, depending on 
+the disk access speed.  In particular, when doing the computation 
+on many processors, it may be faster not to use the files
+since many processors will need access to the disk at the same time.  
+<P>
+<A NAME="lbAI">&nbsp;</A>
+<H3>Pixelization</H3>
+
+<P>
+ccSHT was designed to accommodate as many pixelizations 
+as possible while still allowing the use of FFT's to 
+speed the calculation.  The information about the 
+pixelization is stored in a structure called a 
+<B>coordStruct.  </B>
+
+This structure can be created from 
+a list of right ascension and declination coordinates
+with the function 
+<B>convertRaDec2Coords(), </B>
+
+and the structure is destroyed with the function called
+<B>destroyCoords(). </B>
+
+See the man pages of these two 
+functions for more information.  
+<P>
+In this documentation (and the ccSHT code) standard 
+mathematical spherical coordinates (theta, phi) are used.  We 
+will briefly define these coordinates.  Let us refer to 
+an arbitrary fixed direction as the ``north pole''.  theta
+is the latitudinal angle measured in radians with the value
+zero at the north pole and increasing to pi at the south pole.  
+phi is the longitudinal angle measured in radians and increasing
+counter clockwise (to the east) around the north pole ranging
+from zero to two pi.  
+<P>
+The pixelization must conform to the following 
+list of constraints: 
+<DL COMPACT>
+<DT><B>+</B>
+
+<DD>
+The pixels must lay on rows of constant latitude (theta).
+<DT><B>+</B>
+
+<DD>
+Quadrature weights must be a constant.  If the quadrature
+weights are not constant, but a function only of the pixel 
+location, then the input vector should be point wise 
+multiplied by by the corresponding quadrature weight 
+vector before a forward transform is computed.  
+<DT><B>+</B>
+
+<DD>
+The longitudinal (phi) separation between pixels must be 
+constant for each row of fixed theta, but different rows 
+can have different longitudinal pixel separations.  
+<DT><B>+</B>
+
+<DD>
+There may be missing pixels (called gaps) within rows 
+of constant latitude (theta), but the underlying pixel 
+spacing must be even.  Another way of saying this is that
+entire pixels may be unspecified but not fractions of pixels.  
+<DT><B>+</B>
+
+<DD>
+The pixelization is not required to cover the entire 
+sphere.  In particular, rows of pixels are not required 
+to entirely encircle the sphere.  Every row of pixels 
+has a first and last pixel.  These pixels may or may
+not be contiguous on the sphere.  If they are not 
+contiguous then there is a space before the first pixel 
+and after the last pixel where no pixels are specified.  
+This space is not what we refer to as a gap which refers
+to missing pixels in a row after the first pixel and before
+the last pixel.  The region before the first pixel and 
+after the last pixel in a row is in effect a special gap.
+The function value at all unspecified regions (gaps) in the 
+pixelization is inferred to be zero.  
+<P>
+</DL>
+<A NAME="lbAJ">&nbsp;</A>
+<H3>The coordStruct Data Structure</H3>
+
+<P>
+As a result of our loose restrictions on the 
+pixelization of the sphere the data structure which 
+describes the pixelization is somewhat complex.  
+The best way to create this structure is to use 
+<B>convertRaDec2Coords(). </B>
+
+A description of the structure is provided here
+for completeness, but it is not necessary to 
+understand the details of the data structure to 
+be able to use the transforms.  
+<P>
+The below description assumes a particular ordering for the 
+pixels.  This ordering is used to vectorize discrete functions
+on the sphere.  The ordering must conform to the following
+specification: two pixels which have the same theta value 
+and are contiguous on the sphere (or only separated by
+a gap in the pixelization) must be contiguous in 
+the pixel ordering unless they are the first and last
+pixels listed for a particular value of theta.  This 
+specification does not completely determine an ordering 
+for a pixelization.  The other choices which must be made 
+to order the pixelization are arbitrary, but what ever 
+ordering is chosen must be consistent throughout.  
+<P>
+The structure 
+<B>coordStruct</B>
+
+has the following fields:
+<DL COMPACT>
+<DT><B>nPix</B>
+
+<DD>
+Number of specified pixels on the sphere.  
+<DT><B>nThetaVals</B>
+
+<DD>
+Number of latitudinal (constant theta) rows of pixels which 
+are specified.  
+<DT><B>thetaVals</B>
+
+<DD>
+A vector of theta values in radians for each row of pixels.  
+This list should be ordered in a way consistent with the 
+pixel indexing scheme.  
+<DT><B>thetaBreaks</B>
+
+<DD>
+A vector of pixel numbers for the start of each row of constant theta.  
+<DT><B>phi0</B>
+
+<DD>
+A vector of phi values for the first pixel in each 
+latitudinal (constant theta) row.  
+<DT><B>deltaPhi</B>
+
+<DD>
+A vector of pixel widths in radians for each row of 
+constant theta.  This is the change in phi 
+between two contiguous pixels with the same theta
+value. 
+The sign of each deltaPhi specifies if the phi 
+values increase or decrease (+/-) in the pixel ordering 
+for the corresponding row. Note that deltaPhi 
+is not the angular distance between contiguous pixels 
+which is deltaPhi*sin(theta).  
+<DT><B>nGaps</B>
+
+<DD>
+Number of gaps in otherwise regularly spaced in phi rows of 
+constant theta.  Note that these gaps must have a width 
+which is an integer number of pixels, and if there is an 
+unspecified region before the first pixel in a row and 
+after the last pixel in the row, this is not considered a 
+gap.  
+<DT><B>gaps</B>
+
+<DD>
+A column major ordered 2 by nGaps matrix of pixel numbers 
+where gaps begin 
+in the first row and width of gap in second row.  So if 
+gaps were the following matrix
+<P>
+<BR>&nbsp;[&nbsp;2&nbsp;5&nbsp;9&nbsp;]
+<BR>&nbsp;[&nbsp;3&nbsp;1&nbsp;2&nbsp;]
+<P>
+and the input pixel vector was 
+<P>
+<BR>&nbsp;[&nbsp;0.1&nbsp;1&nbsp;2&nbsp;3&nbsp;4&nbsp;5&nbsp;6&nbsp;7&nbsp;8&nbsp;9&nbsp;10&nbsp;11&nbsp;]
+<P>
+then the zero padded vector (i.e. the vector with 
+filled in gaps) would be
+<P>
+<BR>&nbsp;[&nbsp;0.1&nbsp;1&nbsp;0&nbsp;0&nbsp;0&nbsp;2&nbsp;3&nbsp;4&nbsp;0&nbsp;5&nbsp;6&nbsp;7&nbsp;8&nbsp;0&nbsp;0&nbsp;9&nbsp;10&nbsp;11&nbsp;]
+<P>
+<DT><B>pixSize</B>
+
+<DD>
+Quadrature weight for use in the forward transform 
+(i.e. area of pixels in radians^2).  
+If quadrature weight is not a constant, set pixSize to one 
+(in which case the integral in the forward SHT is just a sum)
+and point wise multiply your input vector by the desired quadrature
+weighting scheme before forward transforming.  
+<P>
+</DL>
+<A NAME="lbAK">&nbsp;</A>
+<H3>Data Structures for the Spherical Harmonic Coefficients and Legendre Polynomials</H3>
+
+<P>
+The spherical harmonic coefficients (a_{l,m}) and the scaled
+associated Legendre polynomials (Q_{l,m}) are indexed by 
+l and m.  For the spherical harmonic coefficients l
+ranges over the integers from zero to some band 
+limit (lmax), and for each l, m 
+ranges over the integers from -l to l. The associated Legendre 
+polynomials are defined in a similar way for 
+l from 0 to lmax, and m from 0 to l.  
+<P>
+In order to store a set of spherical harmonic coefficients 
+in memory we must define a way of vectorizing the set.  
+To insure efficient memory access we have chosen 
+to index in l major order since the calculation is done 
+with this ordering.  In the header file 
+<B>ccSHT.h</B>
+
+there is a macro called 
+<B>almIndex </B>
+
+which takes three integers (l,m,lmax) and
+returns a linear indexing.  This ordering is l major, and 
+increasing with both l and m and is defined below (note 
+that lmax has been replaced by L for clarity):
+<P>
+<BR>&nbsp;almIndex(l,m,L)&nbsp;=&nbsp;(L*(L+1+2*m)+m*(2-abs(m+1)))/2+l
+<P>
+This implies that an a_{l,m} vector would be written:
+<P>
+[ a_{L,-L}, a_{L-1,-L+1}, a_{L,-L+1},
+a_{L-2,-L+2}, ... , a_{0,0}, a_{1,0}, ... , a_{L,L} ]
+<P>
+This is the ordering for the output of forwardSHT and 
+the input for backwardSHT.  
+<P>
+There is a function for computing scaled associated 
+Legendre polynomials called calculateQlm().  The data
+vector created by this function also 
+uses an indexing scheme which is l major 
+and increasing with both l and m.  It is also defined
+in the header file 
+<B>ccSHT.h</B>
+
+with the macro called 
+<B>Qindex</B>
+
+which is defined:
+<P>
+<BR>&nbsp;Qindex(l,m,L)&nbsp;=&nbsp;L*m&nbsp;-&nbsp;(m*(m-1))/2&nbsp;+&nbsp;l
+<P>
+Therefore a Q_{l,m} vector would be written:
+<P>
+[ Q_{0,0}, Q_{1,0}, ... , Q_{L,0}, Q_{1,1}, Q_{2,1}, ... , Q_{L, L} ]
+<P>
+This is the ordering for the output of calculateQlm().
+<P>
+<A NAME="lbAL">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Version 1.03 July 2003
+<P>
+Copyright (C) 2003  Christopher M. Cantalupo
+<P>
+ccSHT is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+<P>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+<P>
+Christopher Cantalupo &lt;<A HREF="mailto:cmc@nersc.gov">cmc@nersc.gov</A>&gt;
+<P>
+Send bug reports or comments to the above address.
+<P>
+<A NAME="lbAM">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<A HREF="forwardSHT.html">forwardSHT</A>(1), <A HREF="backwardSHT.html">backwardSHT</A>(1), <A HREF="forwardSHT.html">forwardSHTmpi</A>(1), <A HREF="backwardSHT.html">backwardSHTmpi</A>(1),
+<A HREF="calculateQlm.html">calculateQlm</A>(1), <A HREF="lmCalculations.html">lmCalculations</A>(1), <A HREF="convertRaDec2Coords.html">convertRaDec2Coords</A>(1), 
+<A HREF="destroyCoords.html">destroyCoords</A>(1), <A HREF="http://www.fftw.org">fftw</A>(1), <A HREF="ccSHTfortran.html">ccSHTfortran</A>(1)
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">DESCRIPTION</A><DD>
+<DL>
+<DT><A HREF="#lbAD">Introduction</A><DD>
+<DT><A HREF="#lbAE">Other SHT Libraries</A><DD>
+<DT><A HREF="#lbAF">Using ccSHT with FORTRAN </A><DD>
+<DT><A HREF="#lbAG">Fourier Transforms</A><DD>
+<DT><A HREF="#lbAH">Intermediate Calculation Files</A><DD>
+<DT><A HREF="#lbAI">Pixelization</A><DD>
+<DT><A HREF="#lbAJ">The coordStruct Data Structure</A><DD>
+<DT><A HREF="#lbAK">Data Structures for the Spherical Harmonic Coefficients and Legendre Polynomials</A><DD>
+</DL>
+<DT><A HREF="#lbAL">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAM">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</A>,
+using the manual pages.<BR>
+Time: 18:54:07 GMT, July 16, 2003
+</BODY>
+</HTML>

@@ -1,0 +1,60 @@
+.TH lmCalculations 1 "Version 1.03: July 2003"
+.SH NAME
+.B lmCalculations
+.SH SYNOPSIS
+.B #include "ccSHT.h"
+.PP
+.BI "void lmCalculations(int " lmax ", flt8 *" calc1 ", flt8 *" calc2", flt8 *"calc3 ", flt8 *" calc4 " );"
+.SH DESCRIPTION
+
+This function is a member of the ccSHT library which does preliminary
+calculations used by calculateQlm() to compute the associated 
+Legendre polynomials.  These calculations are only functions of 
+l and m.  The user must allocate memory for each of these calculations 
+before calling lmCalculations().  The amount of memory required
+is explained below in the description of the input parameters.  
+.TP
+.B lmax
+This is the maximum l value for which the associated Legendre 
+polynomials will be calculated.  It is important that this
+is the same as the lmax which is passed to calculateQlm().  
+.TP
+.B calc1
+A vector of length (lmax+1) eight byte floating point numbers.  
+.TP
+.B calc2
+A vector of length (lmax+1) eight byte floating point numbers.  
+.TP
+.B calc3
+A vector of length ((lmax*lmax + 3*lmax)/2+1) eight byte floating 
+point numbers.  
+.TP
+.B calc4
+A vector of length ((lmax*lmax + 3*lmax)/2+1) eight byte floating 
+point numbers.  
+
+.SH COPYRIGHT
+Version 1.03 July 2003
+
+Copyright (C) 2003  Christopher M. Cantalupo
+
+lmCalculations is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+
+Christopher Cantalupo <cmc@nersc.gov>
+
+Send bug reports or comments to the above address.
+
+.SH "SEE ALSO"
+
+calculateQlm(1), forwardSHT(1), backwardSHT(1), 
+forwardSHTmpi(1), backwardSHTmpi(1), convertRaDec2Coords(1), 
+destroyCoords(1), fftw(1) 
+

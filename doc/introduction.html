@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ccSHT: A Fast Parallel Spherical Harmonic Transform</title>
+</head>
+
+<body bgcolor="white">
+<font face = "sans-serif">
+<center><H2>ccSHT: A Fast Parallel Spherical Harmonic Transform</H2></center>
+<hr>
+
+<H2><u>Introduction</u></H2>
+<P>
+<ds>
+ccSHT is a C library which contains routines that compute the spherical harmonic 
+transform (SHT).  The SHT is essentially the Fourier transform for the surface of the unit 
+sphere (S2).  The basis functions in the SHT are the orthonormal eigenfunctions of the Laplace 
+operator on S2 which span S2.  The basis functions for the Fourier transform are the orthonormal
+eigenfunctions of the Laplace operator on Rn (n dimensional Euclidean space) which span Rn.  
+The Fourier transform is ubiquitous and many libraries exist to do discrete 
+fast Fourier transforms (FFT's) on Rn.  There are many applications, however, where spherical 
+coordinates arise naturally, and spectral analysis must be performed.  In these cases the 
+natural tool to use is the SHT.
+</P>
+<P>
+A few other libraries exist which do discrete SHT's but they are lacking in that they 
+apply only to a limited set of pixelizations and do not contain implementations for 
+parallel architectures.  ccSHT can be applied to a wide variety of pixelizations and 
+contains both parallel and serial versions of the transform.   The parallel code uses 
+the MPI library to perform communications.  ccSHT does the computation quickly (in 
+O(N^(3/2)) where N is the number of pixels) due to the fact that it uses FFT's for 
+part of the computation.  The FFT's are done with the 
+<a href="http://www.fftw.org">FFTW</a> library which was chosen for its portability and 
+speed.
+</P>
+<P>
+<center><H3><a href=".">HOME</a></H3>
+</P>
+
+</body>
+</html>

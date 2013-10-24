@@ -1,0 +1,127 @@
+ccSHTfortran(1)                                                ccSHTfortran(1)
+
+
+
+NAME
+       ccSHTfortran - A set of fortran wrappers for ccSHT
+
+DESCRIPTION
+       ccSHT  includes  some  wrapper  functions which allow the library to be
+       easily called from a fortran code.  The  fortran  linkable  subroutines
+       are  outlined  below.   There  are  nine functions in the ccSHT library
+       (linked with "-l ccSHT") listed here:
+
+       ========================================
+
+       forwardsht_real_fortran( map, coords, lmax, alm )
+         REAL*8, DIMENSION(:), INTENT(IN) :: map
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: alm
+
+       forwardsht_complex_fortran( map, coords, lmax, alm )
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: map
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: alm
+
+       backwardsht_real_fortran( alm, coords, lmax, map)
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: alm
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         REAL*8, DIMENSION(:), INTENT(OUT) :: map
+
+       backwardsht_complex_fortran( alm, coords, lmax, map)
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: alm
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: map
+
+       convertradec2coords_fortran(  pixSize,  nPix,  raDecArray,  ndra,  dra,
+       coords)
+         REAL*8, INTENT(IN) :: pixSize
+         INTEGER*4, INTENT(IN) :: nPix
+         REAL*8, DIMENSION(:), INTENT(IN) :: raDecArray
+         INTEGER*4, INTENT(IN) :: ndra
+         REAL*8, DIMENSION(:), INTENT(IN) :: dra
+         INTEGER*8, INTENT(OUT) :: coords
+
+       destroycoords_fortran( coords)
+         INTEGER*8, INTENT(INOUT) :: coords
+
+       calculateqlm_fortran( lmax, x, calc1, calc2, calc3, calc4, Q )
+         INTEGER*4, INTENT(IN) :: lmax
+         REAL*8, INTENT(IN) :: x
+         REAL*8, INTENT(IN) :: calc1
+         REAL*8, INTENT(IN) :: calc2
+         REAL*8, INTENT(IN) :: calc3
+         REAL*8, INTENT(IN) :: calc4
+         REAL*8, INTENT(OUT) :: Q
+
+       lmcalculations_fortran( lmax, calc1, calc2, calc3, calc4 )
+         INTEGER*4, INTENT(IN) :: lmax
+         REAL*8, INTENT(OUT) :: calc1
+         REAL*8, INTENT(OUT) :: calc2
+         REAL*8, INTENT(OUT) :: calc3
+         REAL*8, INTENT(OUT) :: calc4
+
+       calcuatesmallqlm_fortran(  lmax, x, calc1, calc2, calc3, calc4, Qstart,
+       lStart )
+         INTEGER*4, INTENT(IN) :: lmax
+         REAL*8, INTENT(IN) :: x
+         REAL*8, INTENT(IN) :: calc1
+         REAL*8, INTENT(IN) :: calc2
+         REAL*8, INTENT(IN) :: calc3
+         REAL*8, INTENT(IN) :: calc4
+         REAL*8, INTENT(OUT) :: Qstart
+         INTEGER*4, INTENT(OUT) :: lStart
+
+
+       ========================================
+
+       If the parallel library (linked with "-l ccSHTmpi") is used then  there
+       are four additional subroutines available which are listed below:
+
+       ========================================
+
+       forwardshtmpi_real_fortran( map, coords, lmax, alm, outputRoot, theComm
+       )
+         REAL*8, DIMENSION(:), INTENT(IN) :: map
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: alm
+         INTEGER*4, INTENT(IN) :: outputRoot
+         INTEGER, INTENT(IN) :: theComm
+
+       forwardshtmpi_complex_fortran(  map,  coords,  lmax,  alm,  outputRoot,
+       theComm )
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: map
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: alm
+         INTEGER*4, INTENT(IN) :: outputRoot
+         INTEGER, INTENT(IN) :: theComm
+
+       backwardshtmpi_real_fortran(   alm,   coords,  lmax,  map,  outputRoot,
+       theComm )
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: alm
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         REAL*8, DIMENSION(:), INTENT(OUT) :: map
+         INTEGER*4, INTENT(IN) :: outputRoot
+         INTEGER, INTENT(IN) :: theComm
+
+       backwardshtmpi_complex_fortran( alm,  coords,  lmax,  map,  outputRoot,
+       theComm )
+         COMPLEX*8, DIMENSION(:), INTENT(IN) :: alm
+         INTEGER*8, INTENT(IN) :: coords
+         INTEGER*4, INTENT(IN) :: lmax
+         COMPLEX*8, DIMENSION(:), INTENT(OUT) :: map
+         INTEGER*4, INTENT(IN) :: outputRoot
+         INTEGER, INTENT(IN) :: theComm
+
+       ========================================
+
+
+
+                            Version 1.03: July 2003            ccSHTfortran(1)

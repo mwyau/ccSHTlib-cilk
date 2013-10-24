@@ -1,0 +1,155 @@
+.TH ccSHTx 1 "July 15 2003"
+.SH NAME
+ccSHTx, ccSHTmpix - Spherical Harmonic Transform
+.SH SYNOPSIS
+.B ccSHTx
+.B \-n
+.I numPix
+.B \-l
+.I lmax
+.B \-f
+.I fFile
+.B \-a
+.I almFile
+.B \-p
+.I pixFile
+.B \-d
+.I directionFlag
+.RB [ \-w
+.IR pixArea ]
+.RB [ \-q
+.IR quadWeightFile ]
+.RB [ -c ]
+.PP
+.B ccSHTmpix
+.B \-n
+.I numPix
+.B \-l
+.I lmax
+.B \-f
+.I fFile
+.B \-a
+.I almFile
+.B \-p
+.I pixFile
+.B \-d
+.I directionFlag
+.RB [ \-w
+.IR pixArea ]
+.RB [ \-q
+.IR quadWeightFile ]
+.RB [ -c ]
+
+.SH DESCRIPTION
+These are executable applications which make use of the ccSHT 
+spherical harmonic transform library.  ccSHTx is the executable
+binary which performs a spherical harmonic transform in serial, and
+ccSHTmpix is the executable binary which does the transform in 
+parallel.  The calling sequence for these two executables is 
+exactly the same.  There are six required parameters which 
+must be specified and two optional parameters.  Please see the 
+man page for ccSHT(1) for more information about the ccSHT 
+package.  
+.TP
+.B \-n numPix
+Specifies the number of pixels in the discretization 
+of the sphere.  
+.TP
+.B \-l lmax
+Sets the band cut off for the SHT.  This is the largest
+value of l for which the spherical harmonic coefficients
+are not assumed to be zero.  
+.TP
+.B \-f mapFile
+Specifies the name of the file which is to contain the
+pixel domain vector.  When doing a forward transform this
+file is read in, and when doing a backward transform this
+file is created.  It is formatted as a raw binary 
+file of eight byte floating point reals or complex pairs.  
+The pixel domain vector is assumed to be real valued unless
+the \-c option is specified in which case the vector is 
+interpreted as an array of complex pairs.  The length of
+the vector is specified by the \-n parameter.  
+.TP
+.B \-a almFile
+Specifies the name of the file which is to contain the 
+spherical harmonic coefficients.  When doing a forward
+transform this file is created, and when doing a backward
+transform this file is read in.  It is formatted as a
+raw binary file of eight byte floating point complex pairs.  
+The number of complex pairs is (lmax+1)*(lmax+1)
+where lmax is specified by the \-l parameter.  
+.TP
+.B \-p pixFile
+Specifies the name of the file which contains the right 
+ascension (RA) and declination (DEC) coordinates for each of the 
+pixels in the discretization of the sphere.  This file
+is formatted as a raw binary file of four byte floating point
+pairs of RA and DEC coordinates.  There are as many coordinate 
+pairs in this file as the number of pixels specified by 
+the \-n parameter.  If there are gaps in the pixelization then
+an additional file may be necessary.  This file must have the
+same name as the pixel file, only with a .dra appended to
+it.  For instance if the pixel file was called pixels, then
+the additional file would be called pixels.dra.  This file
+specifies the latitudinal spacing between pixels on every
+row.  This file is a raw binary file.  The first number in the 
+file is a four byte integer which specifies the number of 
+rows which are described in the file.  This integer is followed
+by as many pairs of four byte floating point numbers.  The first
+of each pair specifies the declination of the row, and the
+second specifies the change in right ascension between 
+neighboring pixels in the given row.  These pairs must 
+be ordered in the same way as the rows in the pixel location
+file, but there may be more rows in the .dra file than in the 
+pixel location file.  
+.TP
+.B \-d directionFlag
+Specifies the direction of the transform
+to be performed.  If (f, F, or 1) are given then the code
+performs a forward transform, deriving spherical harmonic
+coefficients from a pixel domain function.  If (b, B, or -1)
+are given then the code performs a backward transform, 
+deriving a pixel domain function from spherical harmonic
+coefficients.  
+.TP
+.B \-w pixArea
+This optional parameter specifies the area of one pixel.  
+This is the constant quadrature weight used to compute
+the integral in the forward transform.  If this number
+is not specified, than the integral is computed as a sum,
+(i.e. the weight used is one).  If a weight file is 
+specified with the \-q option then the \-w option
+should not be used.  
+.TP
+.B \-q quadWeightFile
+This optional parameter specifies a file which is to
+contain the quadrature weights to compute the integral
+in the forward transform.  This file is a raw binary 
+file of eight byte floating point numbers that specify 
+a weight for every pixel.  
+.TP
+.B \-c
+If this option is given then the pixel domain function
+is assumed to be complex valued.  The pixel domain 
+function is either the 
+input to the forward transform or the output from the 
+backward transform.  
+.SH COPYRIGHT
+Version 1.03 July 2003
+.PP
+Copyright (C) 2003  Christopher M. Cantalupo
+.PP
+ccSHTx and ccSHTmpix are free software; you can redistribute them and/or modify
+them under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+.PP
+Christopher Cantalupo <cmc@nersc.gov>
+.PP
+Send bug reports or comments to the above address.

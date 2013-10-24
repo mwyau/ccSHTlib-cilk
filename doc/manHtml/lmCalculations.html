@@ -1,0 +1,106 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of lmCalculations</TITLE>
+</HEAD><BODY>
+<H1>lmCalculations</H1>
+Section: User Commands  (1)<BR>Updated: Version 1.03: July 2003<BR><A HREF="#index">Index</A>
+<A HREF="../manPages.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>lmCalculations</B>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>#include ccSHT.h</B>
+
+<P>
+
+<B>void lmCalculations(int </B><I>lmax</I><B>, flt8 *</B><I>calc1</I><B>, flt8 *</B><I>calc2, flt8 *calc3</I><B>, flt8 *</B><I>calc4</I><B> );</B>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+This function is a member of the ccSHT library which does preliminary
+calculations used by calculateQlm() to compute the associated 
+Legendre polynomials.  These calculations are only functions of 
+l and m.  The user must allocate memory for each of these calculations 
+before calling lmCalculations().  The amount of memory required
+is explained below in the description of the input parameters.  
+<DL COMPACT>
+<DT><B>lmax</B>
+
+<DD>
+This is the maximum l value for which the associated Legendre 
+polynomials will be calculated.  It is important that this
+is the same as the lmax which is passed to calculateQlm().  
+<DT><B>calc1</B>
+
+<DD>
+A vector of length (lmax+1) eight byte floating point numbers.  
+<DT><B>calc2</B>
+
+<DD>
+A vector of length (lmax+1) eight byte floating point numbers.  
+<DT><B>calc3</B>
+
+<DD>
+A vector of length ((lmax*lmax + 3*lmax)/2+1) eight byte floating 
+point numbers.  
+<DT><B>calc4</B>
+
+<DD>
+A vector of length ((lmax*lmax + 3*lmax)/2+1) eight byte floating 
+point numbers.  
+<P>
+</DL>
+<A NAME="lbAE">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Version 1.03 July 2003
+<P>
+Copyright (C) 2003  Christopher M. Cantalupo
+<P>
+lmCalculations is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+<P>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+<P>
+Christopher Cantalupo &lt;<A HREF="mailto:cmc@nersc.gov">cmc@nersc.gov</A>&gt;
+<P>
+Send bug reports or comments to the above address.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<A HREF="calculateQlm.html">calculateQlm</A>(1), <A HREF="forwardSHT.html">forwardSHT</A>(1), <A HREF="backwardSHT.html">backwardSHT</A>(1), 
+<A HREF="forwardSHT.html">forwardSHTmpi</A>(1), <A HREF="backwardSHT.html">backwardSHTmpi</A>(1), <A HREF="convertRaDec2Coords.html">convertRaDec2Coords</A>(1), 
+<A HREF="destroyCoords.html">destroyCoords</A>(1), <A HREF="http://www.fftw.org">fftw</A>(1) 
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:52:28 GMT, July 15, 2003
+</BODY>
+</HTML>

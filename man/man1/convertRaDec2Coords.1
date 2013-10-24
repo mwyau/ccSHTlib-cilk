@@ -1,0 +1,132 @@
+.TH convertRaDec2Coords 1 "Version 1.03: July 2003"
+.SH NAME
+.B covertRaDec2Coords
+.SH SYNOPSIS
+.B #include "ccSHT.h"
+.PP
+.BI "coordStruct convertRaDec2Coords(flt8 " pixSize ", int " nPix ", flt8 *" raDecArray ", int " ndra ", flt8 *" dra " );"
+.PP
+.SH DESCRIPTION
+This function is a member of the ccSHT library which creates the 
+structure that the transform functions use to describe the 
+pixelization of the sphere.  In the ccSHT man page there is 
+a subsection on the pixelization which gives some general information
+about the discretization of the sphere.  The documentation 
+for convertRaDec2Coors() will be clearer if the reader first 
+looks at the pixelization subsection in the man page for ccSHT.  
+
+This function makes use of the astronomer's coordinate system of 
+right ascension (ra) and declination (dec).  
+Right ascension is a measure of longitudinal angle in degrees from 0 to  
+360 increasing counter clockwise (to the east) around the north pole.  
+Declination is a measure of latitudinal angle in degrees from 90 at the 
+north pole to -90 at the opposite (south) pole.  This is converted into 
+standard mathematical spherical coordinates theta and phi as follows: 
+
+ theta = (90 - dec)*pi/180
+ phi = ra*pi/180
+
+convertRaDec2Coords() takes an array of pixel positions in right
+ascension and declination coordinates and converts the 
+positions into a coordStruct.  This structure is used when calling
+both the forward and backward transform.  The positions 
+of the pixels within the array raDecArray must conform 
+to the assumptions described in the pixelization subsection 
+of the man page for ccSHT.  
+The positions must also be ordered in a specific way.  This
+ordering is important, as all pixel domain vectors used with
+ccSHT must also have this ordering.  It is discussed briefly 
+in the man page for ccSHT, but we will discuss it again here.   
+
+convertRaDec2Coords() assumes a sequential ordering for the 
+pixels in the ra dec list.  The ordering must conform to the 
+following specification: two pixels which have the same declination 
+and are contiguous on the sphere (or only separated by
+a gap in the pixelization) must be contiguous in 
+the pixel ordering unless they are the first and last
+pixels listed for a particular value of declination.  
+This specification does not completely
+determine an ordering for a pixelization, none the less,
+any ordering which is used must conform to the above specification.
+
+The ordering of the ra dec array is the ordering
+of all pixel domain vectors used with the coordStruct produced
+by calling convertRaDec2Coords(). 
+
+This function allocates memory to create the structure.  
+To set all of the fields in the structure to zero and free 
+up the memory associated with a structure created with 
+converRaDec2Coords() pass a pointer to the structure to the 
+function called destroyCoords().  For more information about 
+this function see the man page for destroyCoords().
+
+Below is a table describing the parameters passed to convertRaDec2Coords()
+.TP
+.B pixSize
+Quadrature weight for use in the forward transform 
+(i.e. area of pixels in radians^2).  
+If quadrature weight is not a constant, set pixSize to one 
+(in which case the integral in the forward SHT is just a sum)
+and point wise multiply your input vector by the desired quadrature
+weighting scheme before forward transforming. 
+.TP
+.B nPix
+Number of elements in a pixel vector not including any inferred 
+pixels or gaps.  
+.TP
+.B raDecArray
+An array of right ascension and declination pairs for the 
+pixelization.  The vector should be of length nPix*2 and every 
+even indexed entry is the ra value corresponding to the next entry 
+which is the dec value of a position on the sphere.  The ordering of 
+this array is important, see description above.  
+.TP
+.B ndra
+Because the constraints on the pixelization allow for missing 
+pixels there is no way to determine directly from a list of ra 
+and dec values the longitudinal pixel separation in each row of
+pixels.  For this reason this function also takes a list of 
+pixel widths.  ndra is the number of widths in this list.  If
+no pixel widths are specified (i.e. if ndra == 0 or dra == NULL)
+then the pixel widths are inferred from the raDecArray assuming 
+that no gaps exist between the first and second pixel in each 
+row of the list.  
+.TP
+.B dra
+An array of declination and delta ra pairs for the pixelization. 
+If this pointer is NULL then the list will be inferred from the
+values in the raDecArray assuming that no gaps exist between 
+the first and second pixel in each row of the list.  If the 
+vector is given it should be of length ndra*2 and every even indexed 
+entry is the dec value corresponding to the next entry which 
+is the delta ra value for the row.  Note that there may be more 
+rows in this list than there are in the actual pixelization. 
+The list however must have the same ordering of dec values as 
+in raDecArray.  Note that the sign of dra should correspond to the 
+ordering of ra values in raDecArray (i.e. if they are increasing 
+for a given row then dra should be positive).  
+.TP
+.SH COPYRIGHT
+Version 1.03 July 2003
+
+Copyright (C) 2003  Christopher M. Cantalupo
+
+convertRaDec2Coords is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+
+Christopher Cantalupo <cmc@nersc.gov>
+
+Send bug reports or comments to the above address.
+
+.SH "SEE ALSO"
+
+ccSHT(1), destroyCoords(1), forwardSHT(1), backwardSHT(1), 
+forwardSHTmpi(1), backwardSHTmpi(1)
+

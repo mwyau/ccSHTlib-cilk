@@ -1,0 +1,143 @@
+calculateQlm(1)                                   calculateQlm(1)
+
+
+
+NAME
+       calculateQlm
+
+SYNOPSIS
+       #include ccSHT.h
+
+       void  calculateQlm(int  lmax,  flt8  x,  flt8 *calc1, flt8
+       *calc2",flt8*"calc3, flt8 *calc4, flt8 *Q );
+
+
+DESCRIPTION
+       This function is the member of  the  ccSHT  library  which
+       calculates  the  scaled  associated  Legendre polynomials.
+       For  some  background,  and  more  information  about  the
+       library see the man page for ccSHT.
+
+       The  associated  Legendre  polynomials  are functions of a
+       real variable, x, and two integer indexes, l and m.   cal-
+       culateQlm()  solves  for  the  scaled  associated Legendre
+       polynomials for a fixed x, all l in the set  {0,  1,  ...,
+       lmax},  and  all m in the set {0, 1, ..., l}.  The scaling
+       of the polynomials is given here:
+
+                      ________
+                     / (l-m)!
+        Q_{l,m} =   / -------- P_{l,m}
+                  \/   (l+m)!
+
+
+       where P_{l,m} are the associated Legendre polynomials  and
+       Q_{l,m}  are  the  scaled associated Legendre polynomials.
+       The calculation of the polynomials is done with  the  fol-
+       lowing three term recursion on l:
+
+                                  2  m/2
+        Q_{m,m}(x) = c1(m)*( 1 - x  )
+
+        Q_{m+1,m}(x) = c2(m)*x*Q_{m,m}(x)
+
+        Q_{l,m}(x) =  c3(l,m)*x*Q_{l-1,m}(x)
+                          - c4(l,m)*Q_{l-2,m}(x)
+
+       where the functions of l and m are given below:
+
+                           ____________________
+                          /    m               |
+                     m   /  --------'
+        c1(m)  = (-1) * /  '  |  |          1
+                       /      |  |    1 - -----
+                      /       |  |         2*i
+                    \/       i = 1
+
+                    _____
+                   /     |
+        c2(m) =   / 2*m+1
+                \/
+
+                    ( 2*l-1 )
+        c3(l,m) = --------------
+                      2   2  1/2
+                   ( l - m  )
+
+                       _____________
+                      /      2   2  |
+                     /  (l-1) - m
+        c4(l,m) =   / -------------
+                   /       2   2
+                 \/       l - m
+
+       It  can  be  seen in the above equations that Q_{m,m} gets
+       exponentially small with large m.  For x close to -1 or  1
+       and  large  m,  Q_{m,m}  is  not representable as a double
+       because  the  absolute  value  of  Q_{m,m}  is  less  than
+       2^(-1074).  This algorithm rescales Q when it would under-
+       flow and keeps track of  the  scaling.   This  is  because
+       although Q_{m,m}(x) may be virtually zero, Q_{m+500,m} may
+       be substantial but unless the first  two  numbers  in  the
+       recursion   over   l   are  non-zero  the  calculation  of
+       Q_{l,m}(x) would remain 0 for all l.
+
+       Before calling calculateQlm, some preliminary calculations
+       must  be  done  with the function called lmCalculations().
+       See the man page of lmCalculations() for more information.
+       The preliminary calculations are passed to calculateQlm by
+       way of the inputs calc1, calc2, calc3, and calc4.
+
+       Below is a table describing the parameters passed to  cal-
+       culateQlm()
+
+       lmax   Maximum l value for the computation
+
+       x      The  fixed  x  value (between negative one and one)
+              which determines the position for which the polyno-
+              mials are computed.
+
+       calc1, calc2, calc3, calc4
+              Calculations  which  are functions only of l and m.
+              These are to be calculated by the  function  called
+              lmCalculations().   See  man  page  for  lmCalcula-
+              tions() for more details.
+
+       Q      This is the vector where the computed scaled  asso-
+              ciated  Legendre polynomials will be stored.  There
+              should be space for (lmax*lmax + 3*lmax)/2+1  eight
+              byte  floating  point  numbers  in  the array.  The
+              indexing scheme for this vector is explained in the
+              ccSHT man page.
+
+
+COPYRIGHT
+       Version 1.03 July 2003
+
+       Copyright (C) 2003  Christopher M. Cantalupo
+
+       calculateQlm  is  free  software;  you can redistribute it
+       and/or modify it under the terms of the GNU General Public
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
+       later version.
+
+       This  program  is  distributed in the hope that it will be
+       useful, but WITHOUT ANY WARRANTY; without even the implied
+       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+       PURPOSE.  See the GNU  General  Public  License  for  more
+       details.
+
+       Christopher Cantalupo <cmc@nersc.gov>
+
+       Send bug reports or comments to the above address.
+
+
+SEE ALSO
+       forwardSHT(1), backwardSHT(1), forwardSHTmpi(1), backward-
+       SHTmpi(1),   lmCalculations(1),    convertRaDec2Coords(1),
+       destroyCoords(1), fftw(1)
+
+
+
+                     Version 1.03: July 2003      calculateQlm(1)

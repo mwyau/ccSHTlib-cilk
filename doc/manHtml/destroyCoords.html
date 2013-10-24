@@ -1,0 +1,81 @@
+Content-type: text/html
+
+<HTML><HEAD><TITLE>Manpage of destroyCoords</TITLE>
+</HEAD><BODY>
+<H1>destroyCoords</H1>
+Section: User Commands  (1)<BR>Updated: Version 1.03: July 2003<BR><A HREF="#index">Index</A>
+<A HREF="../manPages.html">Return to Main Contents</A><HR>
+
+<A NAME="lbAB">&nbsp;</A>
+<H2>NAME</H2>
+
+<B>destroyCoords</B>
+
+<A NAME="lbAC">&nbsp;</A>
+<H2>SYNOPSIS</H2>
+
+<B>#include ccSHT.h</B>
+
+<P>
+
+<B>void destroyCoords(coordStruct *</B><I>coords</I><B> );</B>
+
+<P>
+
+<A NAME="lbAD">&nbsp;</A>
+<H2>DESCRIPTION</H2>
+
+<P>
+This is the destructor function for the coordStruct structure.  
+It frees up the vectors, and sets all of the fields to zero of 
+the structure pointed to by the input argument 
+<B>coords</B>.
+
+<P>
+<A NAME="lbAE">&nbsp;</A>
+<H2>COPYRIGHT</H2>
+
+Version 1.03 July 2003
+<P>
+Copyright (C) 2003  Christopher M. Cantalupo
+<P>
+destroyCoords is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+<P>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+<P>
+Christopher Cantalupo &lt;<A HREF="mailto:cmc@nersc.gov">cmc@nersc.gov</A>&gt;
+<P>
+Send bug reports or comments to the above address.
+<P>
+<A NAME="lbAF">&nbsp;</A>
+<H2>SEE ALSO</H2>
+
+<P>
+<A HREF="convertRaDec2Coords.html">convertRaDec2Coords</A>(1), <A HREF="forwardSHT.html">forwardSHT</A>(1), <A HREF="backwardSHT.html">backwardSHT</A>(1), 
+<A HREF="forwardSHT.html">forwardSHTmpi</A>(1), <A HREF="backwardSHT.html">backwardSHTmpi</A>(1), <A HREF="calculateQlm.html">calculateQlm</A>(1), 
+<A HREF="lmCalculations.html">lmCalculations</A>(1), <A HREF="http://www.fftw.org">fftw</A>(1) 
+<P>
+<P>
+
+<HR>
+<A NAME="index">&nbsp;</A><H2>Index</H2>
+<DL>
+<DT><A HREF="#lbAB">NAME</A><DD>
+<DT><A HREF="#lbAC">SYNOPSIS</A><DD>
+<DT><A HREF="#lbAD">DESCRIPTION</A><DD>
+<DT><A HREF="#lbAE">COPYRIGHT</A><DD>
+<DT><A HREF="#lbAF">SEE ALSO</A><DD>
+</DL>
+<HR>
+This document was created by
+<A HREF="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</A>,
+using the manual pages.<BR>
+Time: 23:52:28 GMT, July 15, 2003
+</BODY>
+</HTML>

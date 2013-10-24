@@ -1,0 +1,309 @@
+ccSHT(1)                                                 ccSHT(1)
+
+
+
+NAME
+       ccSHT - A Spherical Harmonic Transform Library
+
+DESCRIPTION
+   Introduction
+       ccSHT  is  a  C library comprised of routines that compute
+       the discrete spherical harmonic transform (SHT).  The  SHT
+       is  essentially  the  Fourier transform for the surface of
+       the unit sphere (S2). The basis functions in the  SHT  are
+       an orthonormal set of eigenfunctions of the Laplace opera-
+       tor on S2 which span  S2.   The  basis  functions  of  the
+       Fourier transform are an orthonormal set of eigenfunctions
+       of the Laplace operator on n dimensional  Euclidean  space
+       (Rn)  which  span  Rn. The Fourier transform is ubiquitous
+       and many libraries  exist  to  do  discrete  fast  Fourier
+       transforms  (FFT's)  in  Rn.  There are many applications,
+       however, where spherical coordinates arise naturally,  and
+       spectral  analysis  must  be performed. In these cases the
+       natural tool to use is the SHT.
+
+
+   Other SHT Libraries
+       A few other libraries exist which compute the discrete SHT
+       but  they apply to a more limited set of pixelizations and
+       do not contain implementations for parallel architectures.
+       ccSHT  can  be  applied to a wide variety of pixelizations
+       and contains both parallel  and  serial  versions  of  the
+       transform.  The parallel code uses the MPI library to per-
+       form communications. ccSHT does  the  computation  quickly
+       (in  O(N^(3/2))  operations) where N is the number of pix-
+       els.
+
+
+   Using ccSHT with FORTRAN
+       There are a set of functions  in  the  source  code  files
+       ccSHTfortran.c  and ccSHTmpiFortran.c which allow the pri-
+       mary functions of the ccSHT library to  be  easily  linked
+       from a FORTRAN code.  For more information about the call-
+       ing syntax of these FORTRAN compatible subroutines see the
+       man page ccSHTfortran(1).
+
+
+   Fourier Transforms
+       FFT's  are  used for part of the computation.  These FFT's
+       are done with the FFTW library which was chosen  primarily
+       for  its  portability.   The  Fourier  transforms  do  not
+       account for a significant amount of time in  the  computa-
+       tion (the time is proportional to the N * ln(N) where N is
+       the number of pixels).  None the less, FFTW is quite effi-
+       cient  on most architectures, so this short calculation is
+       done quickly.  For more information on  the  FFTW  library
+       visit  their  web site: http://www.fftw.org At the time of
+       the release of ccSHT version 1.03, FFTW had just  released
+       version  3.0.   This  new  version of FFTW has a different
+       API, and so ccSHT must be used in  conjunction  with  FFTW
+       version  2.15.   This  code is now included with the ccSHT
+       package in the form as downloaded from the  fftw  site  on
+       July 15, 2003.
+
+
+   Intermediate Calculation Files
+       The  calculation of the SHT may be accelerated if the code
+       is allowed to  store  some  intermediate  calculations  on
+       disk.  These intermediate calculations will be stored if a
+       directory called ccSHT_files exists in the working  direc-
+       tory  when  a transform is performed.  If the code can not
+       find the file it is looking for, but the directory exists,
+       then it will create the file.  Using these files may speed
+       up or slow down the calculation,  depending  on  the  disk
+       access  speed.   In particular, when doing the computation
+       on many processors, it may be faster not to use the  files
+       since  many processors will need access to the disk at the
+       same time.
+
+
+   Pixelization
+       ccSHT was designed to accommodate as many pixelizations as
+       possible  while  still  allowing the use of FFT's to speed
+       the calculation.  The information about  the  pixelization
+       is  stored  in  a  structure  called  a coordStruct.  This
+       structure can be created from a list  of  right  ascension
+       and  declination  coordinates  with  the  function conver-
+       tRaDec2Coords(), and the structure is destroyed  with  the
+       function  called  destroyCoords().   See  the man pages of
+       these two functions for more information.
+
+       In this documentation (and the ccSHT code) standard mathe-
+       matical  spherical  coordinates (theta, phi) are used.  We
+       will briefly define these coordinates.  Let us refer to an
+       arbitrary fixed direction as the ``north pole''.  theta is
+       the latitudinal angle measured in radians with  the  value
+       zero  at  the north pole and increasing to pi at the south
+       pole.  phi is the longitudinal angle measured  in  radians
+       and  increasing counter clockwise (to the east) around the
+       north pole ranging from zero to two pi.
+
+       The pixelization must conform to  the  following  list  of
+       constraints:
+
+       +      The  pixels  must  lay on rows of constant latitude
+              (theta).
+
+       +      Quadrature weights must  be  a  constant.   If  the
+              quadrature weights are not constant, but a function
+              only of the pixel location, then the  input  vector
+              should  be  point  wise multiplied by by the corre-
+              sponding quadrature weight vector before a  forward
+              transform is computed.
+
+       +      The  longitudinal  (phi)  separation between pixels
+              must be constant for each row of fixed  theta,  but
+              different  rows  can  have  different  longitudinal
+              pixel separations.
+
+       +      There may be missing pixels  (called  gaps)  within
+              rows of constant latitude (theta), but the underly-
+              ing pixel spacing must be  even.   Another  way  of
+              saying  this  is that entire pixels may be unspeci-
+              fied but not fractions of pixels.
+
+       +      The pixelization  is  not  required  to  cover  the
+              entire  sphere.   In particular, rows of pixels are
+              not  required  to  entirely  encircle  the  sphere.
+              Every  row  of  pixels  has a first and last pixel.
+              These pixels may or may not be  contiguous  on  the
+              sphere.  If they are not contiguous then there is a
+              space before the first pixel  and  after  the  last
+              pixel where no pixels are specified.  This space is
+              not what we refer to as a gap which refers to miss-
+              ing  pixels  in  a  row  after  the first pixel and
+              before the last pixel.  The region before the first
+              pixel  and  after  the  last  pixel  in a row is in
+              effect a special gap.  The function  value  at  all
+              unspecified  regions  (gaps) in the pixelization is
+              inferred to be zero.
+
+
+   The coordStruct Data Structure
+       As a result of our loose restrictions on the  pixelization
+       of  the sphere the data structure which describes the pix-
+       elization is somewhat complex.  The  best  way  to  create
+       this   structure   is  to  use  convertRaDec2Coords().   A
+       description of the structure is  provided  here  for  com-
+       pleteness,  but  it  is  not  necessary  to understand the
+       details of the data structure to be able to use the trans-
+       forms.
+
+       The  below  description  assumes a particular ordering for
+       the pixels.  This ordering is used to  vectorize  discrete
+       functions on the sphere.  The ordering must conform to the
+       following specification: two pixels which  have  the  same
+       theta value and are contiguous on the sphere (or only sep-
+       arated by a gap in the pixelization) must be contiguous in
+       the pixel ordering unless they are the first and last pix-
+       els listed for a particular value of theta.  This specifi-
+       cation  does  not  completely  determine an ordering for a
+       pixelization.  The other choices which  must  be  made  to
+       order the pixelization are arbitrary, but what ever order-
+       ing is chosen must be consistent throughout.
+
+       The structure coordStruct has the following fields:
+
+       nPix   Number of specified pixels on the sphere.
+
+       nThetaVals
+              Number of latitudinal (constant theta) rows of pix-
+              els which are specified.
+
+       thetaVals
+              A vector of theta values in radians for each row of
+              pixels.  This list should be ordered in a way  con-
+              sistent with the pixel indexing scheme.
+
+       thetaBreaks
+              A vector of pixel numbers for the start of each row
+              of constant theta.
+
+       phi0   A vector of phi values for the first pixel in  each
+              latitudinal (constant theta) row.
+
+       deltaPhi
+              A vector of pixel widths in radians for each row of
+              constant theta.  This is the change in phi  between
+              two  contiguous  pixels  with the same theta value.
+              The sign of each deltaPhi specifies if the phi val-
+              ues  increase or decrease (+/-) in the pixel order-
+              ing for the corresponding row. Note  that  deltaPhi
+              is not the angular distance between contiguous pix-
+              els which is deltaPhi*sin(theta).
+
+       nGaps  Number of gaps in otherwise regularly spaced in phi
+              rows  of constant theta.  Note that these gaps must
+              have a width which is an integer number of  pixels,
+              and  if  there  is an unspecified region before the
+              first pixel in a row and after the  last  pixel  in
+              the row, this is not considered a gap.
+
+       gaps   A  column  major ordered 2 by nGaps matrix of pixel
+              numbers where gaps begin in the first row and width
+              of  gap in second row.  So if gaps were the follow-
+              ing matrix
+
+               [ 2 5 9 ]
+               [ 3 1 2 ]
+
+              and the input pixel vector was
+
+               [ 0.1 1 2 3 4 5 6 7 8 9 10 11 ]
+
+              then the zero padded vector (i.e. the  vector  with
+              filled in gaps) would be
+
+               [ 0.1 1 0 0 0 2 3 4 0 5 6 7 8 0 0 9 10 11 ]
+
+
+       pixSize
+              Quadrature  weight for use in the forward transform
+              (i.e. area of pixels in radians^2).  If  quadrature
+              weight  is  not  a constant, set pixSize to one (in
+              which case the integral in the forward SHT is  just
+              a sum) and point wise multiply your input vector by
+              the desired quadrature weighting scheme before for-
+              ward transforming.
+
+
+   Data  Structures  for  the Spherical Harmonic Coefficients and
+       Legendre Polynomials
+       The spherical  harmonic  coefficients  (a_{l,m})  and  the
+       scaled   associated  Legendre  polynomials  (Q_{l,m})  are
+       indexed by l and m.  For the  spherical  harmonic  coeffi-
+       cients  l  ranges over the integers from zero to some band
+       limit (lmax), and for each l, m ranges over  the  integers
+       from  -l  to  l.  The  associated Legendre polynomials are
+       defined in a similar way for l from 0 to lmax, and m  from
+       0 to l.
+
+       In order to store a set of spherical harmonic coefficients
+       in memory we must define a way of vectorizing the set.  To
+       insure  efficient memory access we have chosen to index in
+       l major order since the  calculation  is  done  with  this
+       ordering.   In  the  header  file ccSHT.h there is a macro
+       called almIndex which takes three integers (l,m,lmax)  and
+       returns  a linear indexing.  This ordering is l major, and
+       increasing with both l and m and is  defined  below  (note
+       that lmax has been replaced by L for clarity):
+
+        almIndex(l,m,L) = (L*(L+1+2*m)+m*(2-abs(m+1)))/2+l
+
+       This implies that an a_{l,m} vector would be written:
+
+       [  a_{L,-L}, a_{L-1,-L+1}, a_{L,-L+1}, a_{L-2,-L+2}, ... ,
+       a_{0,0}, a_{1,0}, ... , a_{L,L} ]
+
+       This is the ordering for the output of forwardSHT and  the
+       input for backwardSHT.
+
+       There is a function for computing scaled associated Legen-
+       dre polynomials called calculateQlm().   The  data  vector
+       created  by  this  function  also  uses an indexing scheme
+       which is l major and increasing with both l and m.  It  is
+       also  defined  in  the  header file ccSHT.h with the macro
+       called Qindex which is defined:
+
+        Qindex(l,m,L) = L*m - (m*(m-1))/2 + l
+
+       Therefore a Q_{l,m} vector would be written:
+
+       [ Q_{0,0}, Q_{1,0}, ... , Q_{L,0}, Q_{1,1}, Q_{2,1}, ... ,
+       Q_{L, L} ]
+
+       This is the ordering for the output of calculateQlm().
+
+
+COPYRIGHT
+       Version 1.03 July 2003
+
+       Copyright (C) 2003  Christopher M. Cantalupo
+
+       ccSHT  is  free  software;  you can redistribute it and/or
+       modify it under  the  terms  of  the  GNU  General  Public
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
+       later version.
+
+       This  program  is  distributed in the hope that it will be
+       useful, but WITHOUT ANY WARRANTY; without even the implied
+       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+       PURPOSE.  See the GNU  General  Public  License  for  more
+       details.
+
+       Christopher Cantalupo <cmc@nersc.gov>
+
+       Send bug reports or comments to the above address.
+
+
+SEE ALSO
+       forwardSHT(1), backwardSHT(1), forwardSHTmpi(1), backward-
+       SHTmpi(1),  calculateQlm(1),  lmCalculations(1),   conver-
+       tRaDec2Coords(1),   destroyCoords(1),  fftw(1),  ccSHTfor-
+       tran(1)
+
+
+
+
+                     Version 1.03: July 2003             ccSHT(1)

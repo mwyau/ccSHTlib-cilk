@@ -1,0 +1,40 @@
+.TH destroyCoords 1 "Version 1.03: July 2003"
+.SH NAME
+.B destroyCoords
+.SH SYNOPSIS
+.B #include "ccSHT.h"
+.PP
+.BI "void destroyCoords(coordStruct *" coords " );"
+.PP
+.SH DESCRIPTION
+
+This is the destructor function for the coordStruct structure.  
+It frees up the vectors, and sets all of the fields to zero of 
+the structure pointed to by the input argument 
+.BR "coords" "."
+
+.SH COPYRIGHT
+Version 1.03 July 2003
+
+Copyright (C) 2003  Christopher M. Cantalupo
+
+destroyCoords is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.  
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of 
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+GNU General Public License for more details.  
+
+Christopher Cantalupo <cmc@nersc.gov>
+
+Send bug reports or comments to the above address.
+
+.SH "SEE ALSO"
+
+convertRaDec2Coords(1), forwardSHT(1), backwardSHT(1), 
+forwardSHTmpi(1), backwardSHTmpi(1), calculateQlm(1), 
+lmCalculations(1), fftw(1) 
+

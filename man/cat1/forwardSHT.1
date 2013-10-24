@@ -1,0 +1,175 @@
+forwardSHT(1)                                       forwardSHT(1)
+
+
+
+NAME
+       forwardSHT, forwardSHTmpi
+
+SYNOPSIS
+       #include ccSHT.h
+
+       void  forwardSHT(  void  *map,  int inputIsComplex, coord-
+       Struct coords, int lmax, fftw_complex *alm );
+
+       #include ccSHTmpi.h
+
+       void forwardSHTmpi( void *map, int inputIsComplex,  coord-
+       Struct  coords,  int  lmax, fftw_complex *alm",int output-
+       Root,MPI_Comm theComm );"
+
+
+DESCRIPTION
+       These functions are the members of the ccSHT library which
+       perform  the forward discrete spherical harmonic transform
+       (SHT).  forwardSHT() performs the  computation  in  serial
+       and  forwardSHTmpi() performs the computation in parallel.
+       For  some  background,  and  more  information  about  the
+       library see the man page for ccSHT.
+
+       forwardSHT() and forwardSHTmpi perform a band limited dis-
+       crete SHT, where the band limit is set by the input param-
+       eter  called  lmax.   More exactly, the transform computes
+       the spherical harmonic coefficients (a = a_{l,m}) for  all
+       l  in  the  set {0, 1, 2, ..., lmax} and m in the set {-l,
+       -l+1, -l+2, ..., l}.  The spherical harmonic  coefficients
+       are defined to be
+
+              /
+             |      _
+        a =  |  f * Y dA
+             |
+            /
+
+       where
+
+        a = a_{l,m}
+
+        f = f(theta,phi)
+        _   _
+        Y = Y_{l,m}(theta, phi)
+
+       and  the  integral is over the surface of the unit sphere.
+       In the above formulation, Y bar are the complex conjugates
+       of  the spherical harmonics.  More explicitly, the complex
+       conjugates of the spherical harmonics are defined
+
+                ________________
+        _      / (2*l+1)*(l-m)!
+        Y =   / ----------------*P(cos(theta))*exp(-i*m*phi)
+            \/     4*pi*(l+m)!
+
+       where P(cos(theta)) = P_{l,m}(cos(theta)) are the  associ-
+       ated  Legendre polynomials, and i is the imaginary number.
+       The above formulation is only  valid  for  non-negative  m
+       since  P  is  only defined for non-negative m.  Y_{l,m} is
+       related to Y_{l,-m} as follows:
+
+                       m _
+        Y_{l,-m} = (-1) *Y_{l,m}
+
+       so we can infer the values of Y for negative m.
+
+       The input to the transform is a vector of evaluations of f
+       at  a set of positions on the sphere.  The location of the
+       positions at which the function f is evaluated are  stored
+       in  the  structure  called  coords (see man page ccSHT for
+       more details about this structure).  Let  us  refer  to  a
+       vector  of values of the spherical harmonics for a fixed l
+       and m over all of the pixels on the sphere as a  spherical
+       harmonic vector.  The integral is then calculated as a dot
+       product in pixel space of  the  function  vector  and  the
+       spherical  harmonic  vector  with  a  constant  quadrature
+       weight (coords.pixSize).  If a more complicated quadrature
+       scheme  is preferred, simply set coords.pixSize to one and
+       pass f multiplied by the preferred quadrature weighting to
+       forwardSHT() in place of f.
+
+       For  more information about the calculation of the associ-
+       ated Legendre polynomials see the man page for  calculate-
+       Qlm().   The  transform  does not actually call calculate-
+       Qlm() for optimization purposes.  Instead most of the cod-
+       ing  required to do the calculation of the associated Leg-
+       endre polynomials is done in the functions calculateSmall-
+       Qlm()  and lmCalculations() which the transform does call.
+
+       Below is a table describing the parameters passed to  for-
+       wardSHT() and forwardSHTmpi().
+
+       map    A  vector  of length number of pixels (coords.nPix)
+              of function values to be transformed.  map  can  be
+              either  real  or  complex  (flt8  or  fftw_complex)
+              depending on the value of inputIsComplex.
+
+       inputIsComplex
+              A  logical  indicator  of  the  type  of  map.   If
+              inputIsComplex  is  not zero then map is assumed to
+              be  a   vector   of   length   number   of   pixels
+              (coords.nPix)  eight  byte  floating  point complex
+              pairs (fftw_complex).  If  inputIsComplex  is  zero
+              then map is assumed to be a vector of length number
+              of pixels (coords.nPix) eight byte  floating  point
+              numbers (flt8).
+
+       coords A  structure  which  contains the information about
+              the pixelization of the sphere (see  man  page  for
+              ccSHT  for  a  detailed  description of this struc-
+              ture).
+
+       lmax   Band limit which defines the maximum  l  value  for
+              which  the spherical harmonic coefficients are com-
+              puted.
+
+       alm    The spherical harmonic  coefficients  corresponding
+              to the input vector.  This is the primary output of
+              forwardSHT().  Note that these are complex, and the
+              FFTW  structure  for complex numbers has been used.
+              This should be  a  vector  with  enough  space  for
+              (lmax+1)^2   fftw_complex   values.   The  indexing
+              scheme is discussed in the man page for ccSHT.
+
+       outputRoot
+              This is only required  for  forwardSHTmpi().   This
+              input  indicates the rank of the processor on which
+              the output will be stored.  If  outputRoot  ==  -1,
+              then the output will be stored on all processors.
+
+       theComm
+              This is only required for forwardSHTmpi().  This is
+              the MPI communicator on which the computation is to
+              be done.
+
+
+COPYRIGHT
+       Version 1.03 July 2003
+
+       Copyright (C) 2003  Christopher M. Cantalupo
+
+       forwardSHT  is  free  software;  you  can  redistribute it
+       and/or modify it under the terms of the GNU General Public
+       License  as  published  by  the  Free Software Foundation;
+       either version 2 of the License, or (at your  option)  any
+       later version.
+
+       This  program  is  distributed in the hope that it will be
+       useful, but WITHOUT ANY WARRANTY; without even the implied
+       warranty  of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+       PURPOSE.  See the GNU  General  Public  License  for  more
+       details.
+
+       Christopher Cantalupo <cmc@nersc.gov>
+
+       Send bug reports or comments to the above address.
+
+
+SEE ALSO
+       backwardSHT(1),  forwardSHTmpi(1), backwardSHTmpi(1), cal-
+       culateQlm(1),  convertRaDec2Coords(1),   destroyCoords(1),
+       fftw(1)
+
+
+
+
+
+
+
+                     Version 1.03: July 2003        forwardSHT(1)

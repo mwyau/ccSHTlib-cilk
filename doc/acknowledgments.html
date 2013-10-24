@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ccSHT: A Fast Parallel Spherical Harmonic Transform</title>
+</head>
+
+<body bgcolor="white">
+<font face = "sans-serif">
+<center><H2>ccSHT: A Fast Parallel Spherical Harmonic Transform</H2></center>
+<hr>
+
+<H2><u>Acknowledgments and References</u></H2>
+<P>
+<ds>
+ccSHT was developed at NERSC, which is supported by the D.o.E's 
+Office of Science.  Thanks to Julian Borrill, Radek Stompor and 
+Andrew Jaffe for their assistance in the design, development and 
+testing of ccSHT.  Thanks to Steve Monk for finding 
+a bug that effected negatively ordered pixel rows.  
+Thanks to Albert Bailey for finding a bug in calculateQlm().  
+Thanks to Scott Sides for helping me make the FORTRAN interface
+more robust.  
+Appreciation also goes out to the developers of 
+FFTW for creating such a fine Fourier transform package.  It is 
+also important to acknowledge the efforts of those before me.  
+Several software packages exist to do spherical harmonic transforms.  
+There is the <a href="http://www.eso.org/science/healpix">Healpix</a> 
+package which was originally  developed by 
+Gorski, Hivon and Wandelt.  There is also the SPHEREPACK package
+which was written by Adams and Swarztrauber.  Many people have 
+worked on computing the spherical harmonic transform; some 
+references are given below:
+</P>
+<P>
+<ol>
+<li> 
+Abramowitz, M. and Stegun, I.A.
+Handbook of Mathematical Functions, Applied Mathematics Series, Volume 55.  
+Dover Publications, New York. 1968.
+</li>
+<li> 
+Driscoll, J.R., and Healy, D.M.
+Computing Fourier Transforms and Convolutions on the 2-Sphere.
+Advances in Applied Mathematics. 15, 2 (1994), 202-250.  
+</li>
+<li>
+Górski, K.M., Hivon, E., Wandelt, B.D.
+"Evolution of Large-Scale Structure"
+Proceedings of the MPA/ESO Cosmology Conference 
+eds. A.J. Banday, R.S. Sheth and L. Da Costa, 
+PrintPartners Ipskamp, NL (1999), pp. 37-42 (also astro-ph/9812350)
+</li>
+<li> 
+Healy, D.M., Rockmore, D., and Moore, S.B.
+FFTs for the 2-Sphere - Improvements and Variations.
+Technical Report PCS-TR96-292, Department of Computer Science, Dartmouth College, 1996.  
+</li>
+<li> 
+Magnus, W. and Oberhettinger, F. 
+Formulas and Theorems for the Functions of Mathematical Physics.
+Chelsea, New York. 1949.
+</li>
+<li> 
+Press, W.H., Teukolsky, S.A., Vetterling, W.T., and Flannery, B.P.
+Numerical Recipes in C Second Edition.
+Cambridge University Press, New York. 1992.  
+</li>
+<li> 
+Smith, J.M., Olver, F.W.J., and Lozier, D.W. 
+Extended-Range Arithmetic and Normlized Legendre Polynomials. 
+ACM Trans. Math. Sofw. 7, 1 (March 1981), 93-105.
+</li>
+<li> 
+Swarztrauber, P.N., and Spotz, W.F.
+Generalized Discrete Spherical Harmonic Transforms.
+Journal of Computational Physics, 159, 2, (April 2000), 213-230.
+</li>
+</ol>
+
+</P>
+<P>
+<center><H3><a href=".">HOME</a></H3>
+</P>
+
+</body>
+</html>

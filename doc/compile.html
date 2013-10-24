@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>ccSHT: A Fast Parallel Spherical Harmonic Transform</title>
+</head>
+
+<body bgcolor="white">
+<font face = "sans-serif">
+<center><H2>ccSHT: A Fast Parallel Spherical Harmonic Transform</H2></center>
+<hr>
+
+<H2><u>How to compile the library</u></H2>
+There are just a few items which must be defined at the top of 
+the <a href="../Makefile"> Makefile </a> provided with this library.  
+The C compiler must be chosen, the location of the FFTW library 
+must be defined, and any flags which should be passed to the 
+compiler can be given.  If the fortran linker expects that the object 
+function names have an appended underscore, or that the names are in 
+all upper case than add one or both of the following flags to the 
+CFLAGS and MPCFLAGS definition:
+<p>
+-DF77_APPEND_UNDERSCORE and -DF77_UPPERCASE_NAMES.  
+<p>
+After these changes have been made, just run make.  
+If you only want to compile the serial components of the 
+library type ``make serial''.  
+<P>
+It is important to note that ccSHT uses the API for FFTW version
+2.15.  At the time of release of ccSHT version 1.03, FFTW had just 
+released version 3.0, which is not compatible with ccSHT version 1.03.  
+For this reason FFTW version 2.15 is now included with ccSHT.  
+</P>
+
+<P>
+<center><H3><a href=".">HOME</a></H3>
+</P>
+
+</body>
+</html>
