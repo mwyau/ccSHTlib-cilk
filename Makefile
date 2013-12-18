@@ -1,16 +1,16 @@
 #  Define the C compiler for serial code:
-CC = cc
+CC = icc
 
 #  Define the C compiler for parallel code:
 MPCC = mpicc
 
 #  Define the directory which contains the 
 #  FFTW header files:
-FFTWINCLUDE = /usr/include
+FFTWINCLUDE = ../fftw/include
 
 #  Define the directory which contains the 
 #  FFTW library files:
-FFTWLIBRARY = /usr/lib
+FFTWLIBRARY = ../fftw/lib
 
 #  If FORTRAN adds an underscore to the object names
 #  or uses upper case object names one or both of 
@@ -28,14 +28,13 @@ CFLAGS = -O3
 #  parallel C compiler.  
 MPCFLAGS = -O3
 
-
 ##################################################
 #    DO NOT CHANGE MAKEFILE BELOW THIS POINT     #
 ##################################################
 
 .PHONY : all serial library executable clean tidy
 
-all : libccSHT.a ccSHTx libccSHTmpi.a ccSHTmpix tidy
+all : libccSHT.a ccSHTx libccSHTmpi.a ccSHTmpix libccSHTcilk.a ccSHTcilkx tidy
 
 serial : libccSHT.a ccSHTx tidy
 
@@ -52,6 +51,7 @@ tidy :
 
 FFTW = -I$(FFTWINCLUDE) -L$(FFTWLIBRARY)
 CFLAGS2 = $(CFLAGS)
+CILKFLAGS2 = $(CFLAGS) -D USE_CILK -std=c99
 MPCFLAGS2 = $(MPCFLAGS) -D USE_MPI
 INCLUDE = -I./include
 LINK = -L./lib
@@ -76,6 +76,9 @@ fftw_complex_helper.o : fftw_complex_helper.c fftw_complex_helper.h generalTools
 ccSHT.o : ccSHT.c ccSHT.h generalTools.h fftw_complex_helper.h sizedType.h
 	$(CC) $(CFLAGS2) $(INCLUDE) $(FFTW) -c src/ccSHT.c
 
+ccSHTcilk.o : ccSHTcilk.c ccSHT.h generalTools.h fftw_complex_helper.h sizedType.h
+	$(CC) $(CILKFLAGS2) $(INCLUDE) $(FFTW) -c src/ccSHTcilk.c
+
 ccSHTmpi.o : ccSHTmpi.c ccSHTmpi.h ccSHT.h generalTools.h fftw_complex_helper.h sizedType.h
 	$(MPCC) $(MPCFLAGS2) $(INCLUDE) $(FFTW) -c src/ccSHTmpi.c
 
@@ -89,6 +92,10 @@ libccSHT.a : generalTools_ser.o fftw_complex_helper.o ccSHT.o ccSHTfortran.o
 	ar rc lib/libccSHT.a generalTools_ser.o fftw_complex_helper.o ccSHT.o ccSHTfortran.o
 	ranlib lib/libccSHT.a
 
+libccSHTcilk.a : generalTools_ser.o fftw_complex_helper.o ccSHTcilk.o ccSHTfortran.o
+	ar rc lib/libccSHTcilk.a generalTools_ser.o fftw_complex_helper.o ccSHTcilk.o ccSHTfortran.o
+	ranlib lib/libccSHTcilk.a
+
 libccSHTmpi.a : generalTools_par.o fftw_complex_helper.o ccSHT.o ccSHTmpi.o ccSHTfortran.o ccSHTmpiFortran.o
 	ar rc lib/libccSHTmpi.a generalTools_par.o fftw_complex_helper.o ccSHT.o ccSHTmpi.o ccSHTfortran.o ccSHTmpiFortran.o
 	ranlib lib/libccSHTmpi.a
@@ -98,4 +105,7 @@ ccSHTx : ccSHTx.c libccSHT.a
 
 ccSHTmpix : ccSHTx.c libccSHTmpi.a
 	$(MPCC) $(MPCFLAGS2) $(FFTW) $(INCLUDE) $(LINK) src/ccSHTx.c -o bin/ccSHTmpix -lm -lfftw -lccSHTmpi -lfftw -lm 
+
+ccSHTcilkx : ccSHTx.c libccSHTcilk.a
+	$(CC) $(CFLAGS2) $(FFTW) $(INCLUDE) $(LINK) src/ccSHTx.c -o bin/ccSHTcilkx -lm -lfftw -lccSHTcilk -lfftw -lm -lpthread 
 

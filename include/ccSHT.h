@@ -14,13 +14,15 @@
 *                                                                              *
 *     See ccSHT(1) man page for documentation.                                 *
 *  C.M. Cantalupo  10/29/01 last updated 7/11/03                               *
+*  Albert Yau      12/18/13                                                    *
 *******************************************************************************/
 
 
 /*******************************************************************************
-*   Version 1.03 July 2003                                                     *
+*   Version 1.03cilk December 2013                                             *
 *                                                                              *
 *   Copyright (C) 2003  C.M. Cantalupo                                         *
+*   Copyright (C) 2013  Albert Yau                                             *
 *                                                                              *
 *   ccSHT is free software; you can redistribute it and/or modify              *
 *   it under the terms of the GNU General Public License as published by       *
@@ -49,6 +51,11 @@
 #include "fftw.h"
 #include "generalTools.h"
 #include "fftw_complex_helper.h"
+
+#ifdef USE_CILK
+#include <cilk/cilk.h>
+#include <pthread.h>
+#endif
 
 /*******************************************************************************
 *  Qindex is the indexing macro for the scaled associated Legendre             *
